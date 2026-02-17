@@ -9,7 +9,6 @@ import time
 import logging
 from flask import Flask
 from flask_login import LoginManager
-from flask_dance.contrib.google import make_google_blueprint
 
 from config import Config
 from db import db
@@ -65,17 +64,7 @@ def load_user(user_id):
 
 
 # ============================================================================
-# Google OAuth Setup (registered in routes/auth.py)
-# ============================================================================
-
-if Config.GOOGLE_OAUTH_CLIENT_ID and Config.GOOGLE_OAUTH_CLIENT_SECRET:
-    logger.info("Google OAuth configured")
-else:
-    logger.warning("Google OAuth not configured - set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET")
-
-
-# ============================================================================
-# Register Routes
+# Register Routes (accesso diretto/VPN, senza Google OAuth)
 # ============================================================================
 
 register_routes(app)
