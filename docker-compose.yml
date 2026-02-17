@@ -12,6 +12,15 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_pass}
       POSTGRES_MULTIPLE_DATABASES: airbyte,metabase,wrapper_config
+      # Variabili per init-multiple-databases.sh (creazione utenti/database)
+      AIRBYTE_DB_USER: ${AIRBYTE_DB_USER:-}
+      AIRBYTE_DB_PASSWORD: ${AIRBYTE_DB_PASSWORD:-}
+      METABASE_DB_USER: ${METABASE_DB_USER:-metabase_user}
+      METABASE_DB_PASSWORD: ${METABASE_DB_PASSWORD:-metabase_pass}
+      WRAPPER_DB_USER: ${WRAPPER_DB_USER:-wrapper_user}
+      WRAPPER_DB_PASSWORD: ${WRAPPER_DB_PASSWORD:-wrapper_pass}
+      TEMPORAL_DB_USER: ${TEMPORAL_DB_USER:-}
+      TEMPORAL_DB_PASSWORD: ${TEMPORAL_DB_PASSWORD:-}
     volumes:
       - ./volumes/postgres:/var/lib/postgresql/data
       - ./scripts/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
