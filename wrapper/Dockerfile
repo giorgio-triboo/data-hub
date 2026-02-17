@@ -23,10 +23,10 @@ COPY supervisor.conf /etc/supervisor/conf.d/supervisor.conf
 # Create logs directory
 RUN mkdir -p /app/logs
 
-# Make app.py executable
-RUN chmod +x /app/app.py
+# Make app.py and entrypoint executable
+RUN chmod +x /app/app.py /app/entrypoint.sh
 
 # Expose supervisor control socket (optional)
 EXPOSE 9001
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisor.conf", "-n"]
+ENTRYPOINT ["/app/entrypoint.sh"]
