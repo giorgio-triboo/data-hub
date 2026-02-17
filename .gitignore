@@ -2,7 +2,7 @@
 airbyte-official/
 
 # Environment variables
-.env
+
 
 # Volumes (dati persistenti)
 volumes/
