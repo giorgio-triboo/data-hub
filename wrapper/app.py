@@ -4,6 +4,8 @@ DataHub Wrapper Application - Main Entry Point
 """
 
 import os
+import sys
+import time
 import logging
 from flask import Flask
 from flask_login import LoginManager
@@ -77,6 +79,27 @@ else:
 # ============================================================================
 
 register_routes(app)
+
+
+# ============================================================================
+# Database readiness (retry at startup)
+# ============================================================================
+
+def wait_for_db(max_tries=60, sleep_sec=2):
+    """Attende che PostgreSQL sia raggiungibile prima di inizializzare il DB."""
+    with app.app_context():
+        for i in range(max_tries):
+            try:
+                conn = db.engine.connect()
+                conn.close()
+                logger.info("Database connection OK")
+                return
+            except Exception as e:
+                logger.warning("DB not ready (%s), retry %s/%s", e, i + 1, max_tries)
+                if i == max_tries - 1:
+                    logger.error("Database not available after %s attempts", max_tries)
+                    raise
+                time.sleep(sleep_sec)
 
 
 # ============================================================================
