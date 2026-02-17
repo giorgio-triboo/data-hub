@@ -1,0 +1,210 @@
+# version: '3.8'  # Obsoleto in Docker Compose v2
+
+services:
+  # ============================================
+  # PostgreSQL - Database Condiviso (Airbyte + Metabase + Wrapper)
+  # ============================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: datahub-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_pass}
+      POSTGRES_MULTIPLE_DATABASES: airbyte,metabase,wrapper_config
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data
+      - ./scripts/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
+    ports:
+      - "15432:5432"  # PostgreSQL (porta alternativa per evitare conflitti)
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - datahub-network
+
+  # ============================================
+  # MySQL - Database CRUD
+  # ============================================
+  mysql:
+    image: mysql:8.0
+    container_name: datahub-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysql_root_pass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-datahub_crud}
+      MYSQL_USER: ${MYSQL_USER:-datahub_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-mysql_pass}
+    ports:
+      - "13306:3306"  # MySQL (porta alternativa per evitare conflitti)
+    volumes:
+      - ./volumes/mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-mysql_root_pass}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - datahub-network
+
+  # ============================================
+  # Airbyte - Gestito da abctl
+  # ============================================
+  # Airbyte viene gestito tramite abctl (Airbyte CLI)
+  # Vedi: doc/ABCTL_SETUP.md per istruzioni complete
+  # Installazione: ./scripts/setup-airbyte.sh
+  # URL: http://localhost:8000
+
+  # ============================================
+  # ClickHouse - OLAP Database per Analytics
+  # ============================================
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: datahub-clickhouse
+    restart: unless-stopped
+    ports:
+      - "18123:8123"  # HTTP interface (porta alternativa)
+      - "19000:9000"  # Native protocol (porta alternativa)
+      - "19004:9004"  # Inter-server communication (porta alternativa)
+    volumes:
+      - ./volumes/clickhouse/data:/var/lib/clickhouse
+      - ./volumes/clickhouse/log:/var/log/clickhouse-server
+      - ./clickhouse/config:/etc/clickhouse-server/config.d
+      - ./clickhouse/users:/etc/clickhouse-server/users.d
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    environment:
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB:-marketing_data}
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-default}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-clickhouse_secure_pass_CHANGE_THIS}
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--query", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 120s
+    networks:
+      - datahub-network
+
+  # ============================================
+  # Metabase - BI Platform
+  # ============================================
+  metabase:
+    image: metabase/metabase:latest
+    container_name: datahub-metabase
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+    environment:
+      # Database interno Metabase
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: metabase
+      MB_DB_PORT: 5432
+      MB_DB_USER: ${METABASE_DB_USER:-metabase_user}
+      MB_DB_PASS: ${METABASE_DB_PASSWORD:-metabase_pass}
+      MB_DB_HOST: postgres
+      # Aumenta i limiti degli header HTTP per evitare errore 431
+      # Valore di default: 8192 (8KB), aumentato a 32768 (32KB)
+      MB_JETTY_REQUEST_HEADER_SIZE: 32768
+    ports:
+      - "13000:3000"  # Metabase (porta alternativa per evitare conflitti)
+    volumes:
+      - ./volumes/metabase:/metabase-data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    networks:
+      - datahub-network
+
+  # ============================================
+  # Wrapper Application - Monitoraggio
+  # ============================================
+  wrapper:
+    build:
+      context: ./wrapper
+      dockerfile: Dockerfile
+    container_name: datahub-wrapper
+    restart: unless-stopped
+    # depends_on rimosso - il wrapper può partire indipendentemente
+    # depends_on:
+    #   postgres:
+    #     condition: service_healthy
+    #   mysql:
+    #     condition: service_healthy
+    #   clickhouse:
+    #     condition: service_healthy
+    ports:
+      - "18080:8080"  # Dashboard web (porta alternativa per evitare conflitti)
+    volumes:
+      - ./volumes/logs:/app/logs
+      - ./volumes/backups:/app/backups
+      - ./docker-compose.yml:/app/docker-compose.yml:ro
+      - ./doc:/app/doc:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      # PostgreSQL
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${WRAPPER_DB_USER:-wrapper_user}
+      POSTGRES_PASSWORD: ${WRAPPER_DB_PASSWORD:-wrapper_pass}
+      POSTGRES_DB: wrapper_config
+      WRAPPER_DB_NAME: wrapper_config
+      # MySQL
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: ${MYSQL_USER:-datahub_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-mysql_pass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-datahub_crud}
+      # ClickHouse
+      CLICKHOUSE_HOST: clickhouse
+      CLICKHOUSE_PORT: 8123
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB:-marketing_data}
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-default}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-clickhouse_secure_pass_CHANGE_THIS}
+      # Airbyte (gestito da abctl - accessibile dall'host)
+      # Nota: Airbyte è gestito da abctl e accessibile su localhost:8000 dall'host
+      # Il wrapper può verificare lo stato tramite abctl o healthcheck esterno
+      AIRBYTE_WEBAPP_URL: http://host.docker.internal:8000
+      # Metabase
+      METABASE_URL: http://metabase:3000
+      # Wrapper config
+      CHECK_INTERVAL: ${CHECK_INTERVAL:-60}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      WRAPPER_PORT: ${WRAPPER_PORT:-8080}
+      WRAPPER_SECRET_KEY: ${WRAPPER_SECRET_KEY:-change_this_to_a_random_secret_key_min_32_chars}
+      # Google OAuth
+      GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
+      GOOGLE_OAUTH_CLIENT_SECRET: ${GOOGLE_OAUTH_CLIENT_SECRET:-}
+      GOOGLE_OAUTH_REDIRECT_URI: ${GOOGLE_OAUTH_REDIRECT_URI:-http://localhost:18080/auth/google/callback}
+      ALLOWED_GOOGLE_DOMAINS: ${ALLOWED_GOOGLE_DOMAINS:-}
+      SERVER_NAME: ${SERVER_NAME:-localhost:18080}
+      # Permetti HTTP per OAuth in sviluppo locale
+      OAUTHLIB_INSECURE_TRANSPORT: "1"
+    networks:
+      - datahub-network
+
+networks:
+  datahub-network:
+    external: true
+    name: datahub-network
+
+volumes:
+  postgres_data:
+  mysql_data:
+  clickhouse_data:
+  metabase_data:

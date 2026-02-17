@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<clickhouse>
+    <!-- Network settings - allow connections from anywhere -->
+    <listen_host>0.0.0.0</listen_host>
+    
+    <!-- Compression settings for better storage efficiency -->
+    <compression>
+        <case>
+            <method>lz4</method>
+        </case>
+    </compression>
+    
+    <!-- Timezone -->
+    <timezone>Europe/Rome</timezone>
+    
+    <!-- Max memory usage -->
+    <max_server_memory_usage_to_ram_ratio>0.9</max_server_memory_usage_to_ram_ratio>
+    
+    <!-- Query settings -->
+    <max_concurrent_queries>100</max_concurrent_queries>
+    
+    <!-- Profiles for query settings -->
+    <profiles>
+        <default>
+            <max_memory_usage>10000000000</max_memory_usage>
+            <use_uncompressed_cache>0</use_uncompressed_cache>
+            <load_balancing>random</load_balancing>
+        </default>
+    </profiles>
+</clickhouse>

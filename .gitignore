@@ -1,0 +1,38 @@
+# Embedded repo – track as submodule if needed
+airbyte-official/
+
+# Environment variables
+.env
+
+# Volumes (dati persistenti)
+volumes/
+
+# Logs
+*.log
+logs/
+
+# Backup files
+backup_*.sql
+backup_*.tar.gz
+*.backup
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Docker
+.docker/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

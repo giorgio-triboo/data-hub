@@ -1,0 +1,237 @@
+2026-01-19 15:48:57 info 
+2026-01-19 15:48:57 info Transitioning workload to running state
+2026-01-19 15:48:57 info Connector exited, processing output
+2026-01-19 15:48:57 info Output file jobOutput.json found
+2026-01-19 15:48:57 info ----- START CHECK -----
+2026-01-19 15:48:57 info 
+2026-01-19 15:48:57 info Connector exited with exit code 0
+2026-01-19 15:48:57 info Reading messages from protocol version 0.2.0
+2026-01-19 15:48:58 info INFO main i.m.c.e.DefaultEnvironment(<init>):168 Established active environments: [k8s, cloud, cli, destination, connector]
+2026-01-19 15:48:58 info INFO main i.a.c.AirbyteConnectorRunnable(run):35 Executing class io.airbyte.cdk.load.check.CheckOperation operation.
+2026-01-19 15:48:58 warn WARN main i.a.c.l.c.CheckOperation(execute):58 Caught throwable during CHECK com.clickhouse.client.api.DataTransferException: Query request failed (Attempt: 1/4 - Duration: 578015616)
+	at com.clickhouse.client.api.internal.HttpAPIClientHelper.wrapException(HttpAPIClientHelper.java:749) ~[client-v2-0.9.4.jar:client-v2 0.9.4 (revision: 39bd998)]
+	at com.clickhouse.client.api.Client.lambda$query$5(Client.java:1630) ~[client-v2-0.9.4.jar:client-v2 0.9.4 (revision: 39bd998)]
+	at com.clickhouse.client.api.Client.runAsyncOperation(Client.java:2014) ~[client-v2-0.9.4.jar:client-v2 0.9.4 (revision: 39bd998)]
+	at com.clickhouse.client.api.Client.query(Client.java:1644) ~[client-v2-0.9.4.jar:client-v2 0.9.4 (revision: 39bd998)]
+	at com.clickhouse.client.api.Client.query(Client.java:1527) ~[client-v2-0.9.4.jar:client-v2 0.9.4 (revision: 39bd998)]
+	at com.clickhouse.client.api.Client.execute(Client.java:1952) ~[client-v2-0.9.4.jar:client-v2 0.9.4 (revision: 39bd998)]
+	at io.airbyte.integrations.destination.clickhouse.check.ClickhouseChecker.check(ClickhouseChecker.kt:34) ~[io.airbyte.airbyte-integrations.connectors-destination-clickhouse.jar:?]
+	at io.airbyte.integrations.destination.clickhouse.check.ClickhouseChecker.check(ClickhouseChecker.kt:20) ~[io.airbyte.airbyte-integrations.connectors-destination-clickhouse.jar:?]
+	at io.airbyte.cdk.load.check.CheckOperation.execute(CheckOperation.kt:48) [bulk-cdk-core-load-0.1.105.jar:?]
+	at io.airbyte.cdk.AirbyteConnectorRunnable.run(AirbyteConnectorRunnable.kt:36) [bulk-cdk-core-base-0.1.105.jar:?]
+	at picocli.CommandLine.executeUserObject(CommandLine.java:2030) [picocli-4.7.6.jar:4.7.6]
+	at picocli.CommandLine.access$1500(CommandLine.java:148) [picocli-4.7.6.jar:4.7.6]
+	at picocli.CommandLine$RunLast.executeUserObjectOfLastSubcommandWithSameParent(CommandLine.java:2465) [picocli-4.7.6.jar:4.7.6]
+	at picocli.CommandLine$RunLast.handle(CommandLine.java:2457) [picocli-4.7.6.jar:4.7.6]
+	at picocli.CommandLine$RunLast.handle(CommandLine.java:2419) [picocli-4.7.6.jar:4.7.6]
+	at picocli.CommandLine$AbstractParseResultHandler.execute(CommandLine.java:2277) [picocli-4.7.6.jar:4.7.6]
+	at picocli.CommandLine$RunLast.execute(CommandLine.java:2421) [picocli-4.7.6.jar:4.7.6]
+	at picocli.CommandLine.execute(CommandLine.java:2174) [picocli-4.7.6.jar:4.7.6]
+	at io.airbyte.cdk.AirbyteDestinationRunner$Companion.run(AirbyteConnectorRunner.kt:289) [bulk-cdk-core-base-0.1.105.jar:?]
+	at io.airbyte.cdk.AirbyteDestinationRunner$Companion.run$default(AirbyteConnectorRunner.kt:75) [bulk-cdk-core-base-0.1.105.jar:?]
+	at io.airbyte.integrations.destination.clickhouse.ClickhouseDestinationKt.main(ClickhouseDestination.kt:10) [io.airbyte.airbyte-integrations.connectors-destination-clickhouse.jar:?]
+Caused by: javax.net.ssl.SSLException: Unsupported or unrecognized SSL message
+	at java.base/sun.security.ssl.SSLSocketInputRecord.handleUnknownRecord(SSLSocketInputRecord.java:462) ~[?:?]
+	at java.base/sun.security.ssl.SSLSocketInputRecord.decode(SSLSocketInputRecord.java:175) ~[?:?]
+	at java.base/sun.security.ssl.SSLTransport.decode(SSLTransport.java:111) ~[?:?]
+	at java.base/sun.security.ssl.SSLSocketImpl.decode(SSLSocketImpl.java:1506) ~[?:?]
+	at java.base/sun.security.ssl.SSLSocketImpl.readHandshakeRecord(SSLSocketImpl.java:1421) ~[?:?]
+	at java.base/sun.security.ssl.SSLSocketImpl.startHandshake(SSLSocketImpl.java:455) ~[?:?]
+	at java.base/sun.security.ssl.SSLSocketImpl.startHandshake(SSLSocketImpl.java:426) ~[?:?]
+	at org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory.executeHandshake(SSLConnectionSocketFactory.java:350) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory.createLayeredSocket(SSLConnectionSocketFactory.java:318) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory.createLayeredSocket(SSLConnectionSocketFactory.java:303) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder.lambda$setSSLSocketFactory$0(PoolingHttpClientConnectionManagerBuilder.java:125) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.io.DefaultHttpClientConnectionOperator.connect(DefaultHttpClientConnectionOperator.java:231) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager.connect(PoolingHttpClientConnectionManager.java:490) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.InternalExecRuntime.connectEndpoint(InternalExecRuntime.java:164) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.InternalExecRuntime.connectEndpoint(InternalExecRuntime.java:174) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.ConnectExec.execute(ConnectExec.java:144) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.ProtocolExec.execute(ProtocolExec.java:192) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.HttpRequestRetryExec.execute(HttpRequestRetryExec.java:113) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.RedirectExec.execute(RedirectExec.java:110) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.InternalHttpClient.doExecute(InternalHttpClient.java:183) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:87) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:55) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.classic.HttpClient.executeOpen(HttpClient.java:183) ~[httpclient5-5.4.4.jar:5.4.4]
+	at com.clickhouse.client.api.internal.HttpAPIClientHelper.executeRequest(HttpAPIClientHelper.java:453) ~[client-v2-0.9.4.jar:client-v2 0.9.4 (revision: 39bd998)]
+	at com.clickhouse.client.api.Client.lambda$query$5(Client.java:1599) ~[client-v2-0.9.4.jar:client-v2 0.9.4 (revision: 39bd998)]
+	... 19 more
+
+Stack Trace: com.clickhouse.client.api.DataTransferException: Query request failed (Attempt: 1/4 - Duration: 578015616)
+	at com.clickhouse.client.api.internal.HttpAPIClientHelper.wrapException(HttpAPIClientHelper.java:749)
+	at com.clickhouse.client.api.Client.lambda$query$5(Client.java:1630)
+	at com.clickhouse.client.api.Client.runAsyncOperation(Client.java:2014)
+	at com.clickhouse.client.api.Client.query(Client.java:1644)
+	at com.clickhouse.client.api.Client.query(Client.java:1527)
+	at com.clickhouse.client.api.Client.execute(Client.java:1952)
+	at io.airbyte.integrations.destination.clickhouse.check.ClickhouseChecker.check(ClickhouseChecker.kt:34)
+	at io.airbyte.integrations.destination.clickhouse.check.ClickhouseChecker.check(ClickhouseChecker.kt:20)
+	at io.airbyte.cdk.load.check.CheckOperation.execute(CheckOperation.kt:48)
+	at io.airbyte.cdk.AirbyteConnectorRunnable.run(AirbyteConnectorRunnable.kt:36)
+	at picocli.CommandLine.executeUserObject(CommandLine.java:2030)
+	at picocli.CommandLine.access$1500(CommandLine.java:148)
+	at picocli.CommandLine$RunLast.executeUserObjectOfLastSubcommandWithSameParent(CommandLine.java:2465)
+	at picocli.CommandLine$RunLast.handle(CommandLine.java:2457)
+	at picocli.CommandLine$RunLast.handle(CommandLine.java:2419)
+	at picocli.CommandLine$AbstractParseResultHandler.execute(CommandLine.java:2277)
+	at picocli.CommandLine$RunLast.execute(CommandLine.java:2421)
+	at picocli.CommandLine.execute(CommandLine.java:2174)
+	at io.airbyte.cdk.AirbyteDestinationRunner$Companion.run(AirbyteConnectorRunner.kt:289)
+	at io.airbyte.cdk.AirbyteDestinationRunner$Companion.run$default(AirbyteConnectorRunner.kt:75)
+	at io.airbyte.integrations.destination.clickhouse.ClickhouseDestinationKt.main(ClickhouseDestination.kt:10)
+Caused by: javax.net.ssl.SSLException: Unsupported or unrecognized SSL message
+	at java.base/sun.security.ssl.SSLSocketInputRecord.handleUnknownRecord(SSLSocketInputRecord.java:462)
+	at java.base/sun.security.ssl.SSLSocketInputRecord.decode(SSLSocketInputRecord.java:175)
+	at java.base/sun.security.ssl.SSLTransport.decode(SSLTransport.java:111)
+	at java.base/sun.security.ssl.SSLSocketImpl.decode(SSLSocketImpl.java:1506)
+	at java.base/sun.security.ssl.SSLSocketImpl.readHandshakeRecord(SSLSocketImpl.java:1421)
+	at java.base/sun.security.ssl.SSLSocketImpl.startHandshake(SSLSocketImpl.java:455)
+	at java.base/sun.security.ssl.SSLSocketImpl.startHandshake(SSLSocketImpl.java:426)
+	at org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory.executeHandshake(SSLConnectionSocketFactory.java:350)
+	at org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory.createLayeredSocket(SSLConnectionSocketFactory.java:318)
+	at org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory.createLayeredSocket(SSLConnectionSocketFactory.java:303)
+	at org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder.lambda$setSSLSocketFactory$0(PoolingHttpClientConnectionManagerBuilder.java:125)
+	at org.apache.hc.client5.http.impl.io.DefaultHttpClientConnectionOperator.connect(DefaultHttpClientConnectionOperator.java:231)
+	at org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager.connect(PoolingHttpClientConnectionManager.java:490)
+	at org.apache.hc.client5.http.impl.classic.InternalExecRuntime.connectEndpoint(InternalExecRuntime.java:164)
+	at org.apache.hc.client5.http.impl.classic.InternalExecRuntime.connectEndpoint(InternalExecRuntime.java:174)
+	at org.apache.hc.client5.http.impl.classic.ConnectExec.execute(ConnectExec.java:144)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.ProtocolExec.execute(ProtocolExec.java:192)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.HttpRequestRetryExec.execute(HttpRequestRetryExec.java:113)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.RedirectExec.execute(RedirectExec.java:110)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.InternalHttpClient.doExecute(InternalHttpClient.java:183)
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:87)
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:55)
+	at org.apache.hc.client5.http.classic.HttpClient.executeOpen(HttpClient.java:183)
+	at com.clickhouse.client.api.internal.HttpAPIClientHelper.executeRequest(HttpAPIClientHelper.java:453)
+	at com.clickhouse.client.api.Client.lambda$query$5(Client.java:1599)
+	... 19 more
+
+2026-01-19 15:48:58 error ERROR main i.a.c.AirbyteConnectorRunnable(run):38 Failed class io.airbyte.cdk.load.check.CheckOperation operation execution. com.clickhouse.client.api.DataTransferException: Query request failed (Attempt: 1/4 - Duration: 35033724)
+	at com.clickhouse.client.api.internal.HttpAPIClientHelper.wrapException(HttpAPIClientHelper.java:749) ~[client-v2-0.9.4.jar:client-v2 0.9.4 (revision: 39bd998)]
+	at com.clickhouse.client.api.Client.lambda$query$5(Client.java:1630) ~[client-v2-0.9.4.jar:client-v2 0.9.4 (revision: 39bd998)]
+	at com.clickhouse.client.api.Client.runAsyncOperation(Client.java:2014) ~[client-v2-0.9.4.jar:client-v2 0.9.4 (revision: 39bd998)]
+	at com.clickhouse.client.api.Client.query(Client.java:1644) ~[client-v2-0.9.4.jar:client-v2 0.9.4 (revision: 39bd998)]
+	at com.clickhouse.client.api.Client.query(Client.java:1527) ~[client-v2-0.9.4.jar:client-v2 0.9.4 (revision: 39bd998)]
+	at com.clickhouse.client.api.Client.execute(Client.java:1952) ~[client-v2-0.9.4.jar:client-v2 0.9.4 (revision: 39bd998)]
+	at io.airbyte.integrations.destination.clickhouse.check.ClickhouseChecker.cleanup(ClickhouseChecker.kt:58) ~[io.airbyte.airbyte-integrations.connectors-destination-clickhouse.jar:?]
+	at io.airbyte.integrations.destination.clickhouse.check.ClickhouseChecker.cleanup(ClickhouseChecker.kt:20) ~[io.airbyte.airbyte-integrations.connectors-destination-clickhouse.jar:?]
+	at io.airbyte.cdk.load.check.CheckOperation.execute(CheckOperation.kt:61) ~[bulk-cdk-core-load-0.1.105.jar:?]
+	at io.airbyte.cdk.AirbyteConnectorRunnable.run(AirbyteConnectorRunnable.kt:36) [bulk-cdk-core-base-0.1.105.jar:?]
+	at picocli.CommandLine.executeUserObject(CommandLine.java:2030) [picocli-4.7.6.jar:4.7.6]
+	at picocli.CommandLine.access$1500(CommandLine.java:148) [picocli-4.7.6.jar:4.7.6]
+	at picocli.CommandLine$RunLast.executeUserObjectOfLastSubcommandWithSameParent(CommandLine.java:2465) [picocli-4.7.6.jar:4.7.6]
+	at picocli.CommandLine$RunLast.handle(CommandLine.java:2457) [picocli-4.7.6.jar:4.7.6]
+	at picocli.CommandLine$RunLast.handle(CommandLine.java:2419) [picocli-4.7.6.jar:4.7.6]
+	at picocli.CommandLine$AbstractParseResultHandler.execute(CommandLine.java:2277) [picocli-4.7.6.jar:4.7.6]
+	at picocli.CommandLine$RunLast.execute(CommandLine.java:2421) [picocli-4.7.6.jar:4.7.6]
+	at picocli.CommandLine.execute(CommandLine.java:2174) [picocli-4.7.6.jar:4.7.6]
+	at io.airbyte.cdk.AirbyteDestinationRunner$Companion.run(AirbyteConnectorRunner.kt:289) [bulk-cdk-core-base-0.1.105.jar:?]
+	at io.airbyte.cdk.AirbyteDestinationRunner$Companion.run$default(AirbyteConnectorRunner.kt:75) [bulk-cdk-core-base-0.1.105.jar:?]
+	at io.airbyte.integrations.destination.clickhouse.ClickhouseDestinationKt.main(ClickhouseDestination.kt:10) [io.airbyte.airbyte-integrations.connectors-destination-clickhouse.jar:?]
+Caused by: javax.net.ssl.SSLException: Unsupported or unrecognized SSL message
+	at java.base/sun.security.ssl.SSLSocketInputRecord.handleUnknownRecord(SSLSocketInputRecord.java:462) ~[?:?]
+	at java.base/sun.security.ssl.SSLSocketInputRecord.decode(SSLSocketInputRecord.java:175) ~[?:?]
+	at java.base/sun.security.ssl.SSLTransport.decode(SSLTransport.java:111) ~[?:?]
+	at java.base/sun.security.ssl.SSLSocketImpl.decode(SSLSocketImpl.java:1506) ~[?:?]
+	at java.base/sun.security.ssl.SSLSocketImpl.readHandshakeRecord(SSLSocketImpl.java:1421) ~[?:?]
+	at java.base/sun.security.ssl.SSLSocketImpl.startHandshake(SSLSocketImpl.java:455) ~[?:?]
+	at java.base/sun.security.ssl.SSLSocketImpl.startHandshake(SSLSocketImpl.java:426) ~[?:?]
+	at org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory.executeHandshake(SSLConnectionSocketFactory.java:350) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory.createLayeredSocket(SSLConnectionSocketFactory.java:318) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory.createLayeredSocket(SSLConnectionSocketFactory.java:303) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder.lambda$setSSLSocketFactory$0(PoolingHttpClientConnectionManagerBuilder.java:125) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.io.DefaultHttpClientConnectionOperator.connect(DefaultHttpClientConnectionOperator.java:231) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager.connect(PoolingHttpClientConnectionManager.java:490) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.InternalExecRuntime.connectEndpoint(InternalExecRuntime.java:164) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.InternalExecRuntime.connectEndpoint(InternalExecRuntime.java:174) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.ConnectExec.execute(ConnectExec.java:144) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.ProtocolExec.execute(ProtocolExec.java:192) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.HttpRequestRetryExec.execute(HttpRequestRetryExec.java:113) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.RedirectExec.execute(RedirectExec.java:110) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.InternalHttpClient.doExecute(InternalHttpClient.java:183) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:87) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:55) ~[httpclient5-5.4.4.jar:5.4.4]
+	at org.apache.hc.client5.http.classic.HttpClient.executeOpen(HttpClient.java:183) ~[httpclient5-5.4.4.jar:5.4.4]
+	at com.clickhouse.client.api.internal.HttpAPIClientHelper.executeRequest(HttpAPIClientHelper.java:453) ~[client-v2-0.9.4.jar:client-v2 0.9.4 (revision: 39bd998)]
+	at com.clickhouse.client.api.Client.lambda$query$5(Client.java:1599) ~[client-v2-0.9.4.jar:client-v2 0.9.4 (revision: 39bd998)]
+	... 19 more
+
+Stack Trace: com.clickhouse.client.api.DataTransferException: Query request failed (Attempt: 1/4 - Duration: 35033724)
+	at com.clickhouse.client.api.internal.HttpAPIClientHelper.wrapException(HttpAPIClientHelper.java:749)
+	at com.clickhouse.client.api.Client.lambda$query$5(Client.java:1630)
+	at com.clickhouse.client.api.Client.runAsyncOperation(Client.java:2014)
+	at com.clickhouse.client.api.Client.query(Client.java:1644)
+	at com.clickhouse.client.api.Client.query(Client.java:1527)
+	at com.clickhouse.client.api.Client.execute(Client.java:1952)
+	at io.airbyte.integrations.destination.clickhouse.check.ClickhouseChecker.cleanup(ClickhouseChecker.kt:58)
+	at io.airbyte.integrations.destination.clickhouse.check.ClickhouseChecker.cleanup(ClickhouseChecker.kt:20)
+	at io.airbyte.cdk.load.check.CheckOperation.execute(CheckOperation.kt:61)
+	at io.airbyte.cdk.AirbyteConnectorRunnable.run(AirbyteConnectorRunnable.kt:36)
+	at picocli.CommandLine.executeUserObject(CommandLine.java:2030)
+	at picocli.CommandLine.access$1500(CommandLine.java:148)
+	at picocli.CommandLine$RunLast.executeUserObjectOfLastSubcommandWithSameParent(CommandLine.java:2465)
+	at picocli.CommandLine$RunLast.handle(CommandLine.java:2457)
+	at picocli.CommandLine$RunLast.handle(CommandLine.java:2419)
+	at picocli.CommandLine$AbstractParseResultHandler.execute(CommandLine.java:2277)
+	at picocli.CommandLine$RunLast.execute(CommandLine.java:2421)
+	at picocli.CommandLine.execute(CommandLine.java:2174)
+	at io.airbyte.cdk.AirbyteDestinationRunner$Companion.run(AirbyteConnectorRunner.kt:289)
+	at io.airbyte.cdk.AirbyteDestinationRunner$Companion.run$default(AirbyteConnectorRunner.kt:75)
+	at io.airbyte.integrations.destination.clickhouse.ClickhouseDestinationKt.main(ClickhouseDestination.kt:10)
+Caused by: javax.net.ssl.SSLException: Unsupported or unrecognized SSL message
+	at java.base/sun.security.ssl.SSLSocketInputRecord.handleUnknownRecord(SSLSocketInputRecord.java:462)
+	at java.base/sun.security.ssl.SSLSocketInputRecord.decode(SSLSocketInputRecord.java:175)
+	at java.base/sun.security.ssl.SSLTransport.decode(SSLTransport.java:111)
+	at java.base/sun.security.ssl.SSLSocketImpl.decode(SSLSocketImpl.java:1506)
+	at java.base/sun.security.ssl.SSLSocketImpl.readHandshakeRecord(SSLSocketImpl.java:1421)
+	at java.base/sun.security.ssl.SSLSocketImpl.startHandshake(SSLSocketImpl.java:455)
+	at java.base/sun.security.ssl.SSLSocketImpl.startHandshake(SSLSocketImpl.java:426)
+	at org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory.executeHandshake(SSLConnectionSocketFactory.java:350)
+	at org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory.createLayeredSocket(SSLConnectionSocketFactory.java:318)
+	at org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory.createLayeredSocket(SSLConnectionSocketFactory.java:303)
+	at org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder.lambda$setSSLSocketFactory$0(PoolingHttpClientConnectionManagerBuilder.java:125)
+	at org.apache.hc.client5.http.impl.io.DefaultHttpClientConnectionOperator.connect(DefaultHttpClientConnectionOperator.java:231)
+	at org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager.connect(PoolingHttpClientConnectionManager.java:490)
+	at org.apache.hc.client5.http.impl.classic.InternalExecRuntime.connectEndpoint(InternalExecRuntime.java:164)
+	at org.apache.hc.client5.http.impl.classic.InternalExecRuntime.connectEndpoint(InternalExecRuntime.java:174)
+	at org.apache.hc.client5.http.impl.classic.ConnectExec.execute(ConnectExec.java:144)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.ProtocolExec.execute(ProtocolExec.java:192)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.HttpRequestRetryExec.execute(HttpRequestRetryExec.java:113)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.RedirectExec.execute(RedirectExec.java:110)
+	at org.apache.hc.client5.http.impl.classic.ExecChainElement.execute(ExecChainElement.java:51)
+	at org.apache.hc.client5.http.impl.classic.InternalHttpClient.doExecute(InternalHttpClient.java:183)
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:87)
+	at org.apache.hc.client5.http.impl.classic.CloseableHttpClient.execute(CloseableHttpClient.java:55)
+	at org.apache.hc.client5.http.classic.HttpClient.executeOpen(HttpClient.java:183)
+	at com.clickhouse.client.api.internal.HttpAPIClientHelper.executeRequest(HttpAPIClientHelper.java:453)
+	at com.clickhouse.client.api.Client.lambda$query$5(Client.java:1599)
+	... 19 more
+
+2026-01-19 15:48:58 info INFO main i.a.c.AirbyteConnectorRunnable(run):47 Flushing output consumer prior to shutdown.
+2026-01-19 15:48:58 info INFO main i.a.c.AirbyteConnectorRunnable(run):49 Completed integration: airbyte/destination-clickhouse.
+2026-01-19 15:48:58 info Checking for optional control message...
+2026-01-19 15:48:58 info Optional control message not found. Skipping...
+2026-01-19 15:48:58 info Writing output of ce0d828e-1dc4-496c-b122-2da42e637e48_fc5f76a3-71d9-4114-9458-5c746fc93259_0_check to the doc store
+2026-01-19 15:48:59 info Workload successfully transitioned to running state
+2026-01-19 15:49:00 info Marking workload ce0d828e-1dc4-496c-b122-2da42e637e48_fc5f76a3-71d9-4114-9458-5c746fc93259_0_check as successful
+2026-01-19 15:49:00 info Deliberately exiting process with code 0.
+2026-01-19 15:49:00 info 
+2026-01-19 15:49:00 info ----- END CHECK -----
+2026-01-19 15:49:00 info 

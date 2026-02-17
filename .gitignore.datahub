@@ -1,0 +1,38 @@
+# DataHub specific gitignore
+# Aggiungi queste righe al .gitignore principale se esiste
+
+# Environment variables
+.env
+
+# Volumes (dati persistenti)
+volumes/
+
+# Logs
+*.log
+logs/
+
+# Backup files
+backup_*.sql
+backup_*.tar.gz
+*.backup
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Docker
+.docker/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

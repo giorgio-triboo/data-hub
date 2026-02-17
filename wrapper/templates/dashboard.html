@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - DataHub{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-0">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Dashboard</h2>
+        <p class="mt-1 text-sm text-gray-500">Panoramica generale del sistema DataHub</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-server text-2xl text-blue-500"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Servizi</dt>
+                            <dd class="text-lg font-medium text-gray-900" id="services-count">-</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-database text-2xl text-green-500"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Database ClickHouse</dt>
+                            <dd class="text-lg font-medium text-gray-900" id="databases-count">-</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-plug text-2xl text-purple-500"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Connessioni Airbyte</dt>
+                            <dd class="text-lg font-medium text-gray-900" id="connections-count">-</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle text-2xl text-green-500"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Status Generale</dt>
+                            <dd class="text-lg font-medium text-gray-900" id="overall-status">-</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="bg-white shadow rounded-lg mb-6">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Quick Links</h3>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
+                <a href="http://localhost:13000" target="_blank" class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                    <i class="fas fa-chart-bar text-blue-500 mr-3"></i>
+                    <span class="text-sm font-medium text-gray-900">Metabase Dashboard</span>
+                </a>
+                <a href="http://localhost:8000" target="_blank" class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                    <i class="fas fa-rocket text-purple-500 mr-3"></i>
+                    <span class="text-sm font-medium text-gray-900">Airbyte Console</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Load dashboard stats
+    async function loadStats() {
+        try {
+            // Services count
+            const healthResponse = await fetch('/api/healthcheck/status');
+            if (healthResponse.ok) {
+                const healthData = await healthResponse.json();
+                document.getElementById('services-count').textContent = `${healthData.healthy_count}/${healthData.total_count}`;
+                document.getElementById('overall-status').textContent = healthData.overall_status === 'healthy' ? 'Healthy' : 'Unhealthy';
+            }
+
+            // Databases count
+            const dbResponse = await fetch('/api/clickhouse/databases');
+            if (dbResponse.ok) {
+                const dbData = await dbResponse.json();
+                document.getElementById('databases-count').textContent = dbData.databases?.length || 0;
+            }
+
+            // Connections count
+            const connResponse = await fetch('/api/airbyte/connections');
+            if (connResponse.ok) {
+                const connData = await connResponse.json();
+                document.getElementById('connections-count').textContent = connData.connections?.length || 0;
+            }
+        } catch (error) {
+            console.error('Error loading stats:', error);
+        }
+    }
+
+    // Polling interval dinamico: più lungo se ci sono errori
+    let statsPollingInterval = 30000; // 30 secondi di default
+    let statsConsecutiveErrors = 0;
+    
+    function adjustStatsPollingInterval(hasErrors) {
+        if (hasErrors) {
+            statsConsecutiveErrors++;
+            // Aumenta l'interval se ci sono errori consecutivi
+            statsPollingInterval = Math.min(120000, 30000 * (1 + statsConsecutiveErrors)); // Max 2 minuti
+        } else {
+            statsConsecutiveErrors = 0;
+            statsPollingInterval = 30000; // Torna a 30 secondi se tutto OK
+        }
+        
+        // Riavvia il polling con il nuovo interval
+        clearInterval(window.statsInterval);
+        window.statsInterval = setInterval(loadStats, statsPollingInterval);
+    }
+    
+    async function loadStats() {
+        let hasErrors = false;
+        try {
+            // Services count
+            const healthResponse = await fetch('/api/healthcheck/status');
+            if (healthResponse.ok) {
+                const healthData = await healthResponse.json();
+                document.getElementById('services-count').textContent = `${healthData.healthy_count}/${healthData.total_count}`;
+                document.getElementById('overall-status').textContent = healthData.overall_status === 'healthy' ? 'Healthy' : 'Unhealthy';
+                if (healthData.overall_status !== 'healthy') hasErrors = true;
+            } else {
+                hasErrors = true;
+            }
+
+            // Databases count
+            const dbResponse = await fetch('/api/clickhouse/databases');
+            if (dbResponse.ok) {
+                const dbData = await dbResponse.json();
+                document.getElementById('databases-count').textContent = dbData.databases?.length || 0;
+            } else {
+                hasErrors = true;
+            }
+
+            // Connections count - gestisci errori silenziosamente se Airbyte è down
+            try {
+                const connResponse = await fetch('/api/airbyte/connections');
+                if (connResponse.ok) {
+                    const connData = await connResponse.json();
+                    document.getElementById('connections-count').textContent = connData.connections?.length || 0;
+                } else {
+                    // Non considerare errore se Airbyte è semplicemente down
+                    document.getElementById('connections-count').textContent = 'N/A';
+                }
+            } catch (e) {
+                // Ignora errori di Airbyte nel dashboard
+                document.getElementById('connections-count').textContent = 'N/A';
+            }
+        } catch (error) {
+            console.error('Error loading stats:', error);
+            hasErrors = true;
+        }
+        
+        adjustStatsPollingInterval(hasErrors);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadStats();
+        // Auto-refresh con interval dinamico
+        window.statsInterval = setInterval(loadStats, statsPollingInterval);
+    });
+</script>
+{% endblock %}
