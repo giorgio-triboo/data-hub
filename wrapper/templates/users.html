@@ -14,9 +14,15 @@
         <div class="px-4 py-5 sm:p-6">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-medium text-gray-900">Utenti</h3>
-                <button onclick="loadUsers()" class="text-sm text-blue-600 hover:text-blue-800">
-                    <i class="fas fa-sync-alt mr-1"></i> Aggiorna
-                </button>
+                <div class="flex items-center space-x-2">
+                    <button type="button" onclick="showAddUserModal()"
+                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                        <i class="fas fa-user-plus mr-1"></i> Aggiungi utente
+                    </button>
+                    <button onclick="loadUsers()" class="text-sm text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-sync-alt mr-1"></i> Aggiorna
+                    </button>
+                </div>
             </div>
             
             <div id="users-table" class="overflow-x-auto">
@@ -38,6 +44,44 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div id="add-user-modal" class="hidden fixed z-10 inset-0 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="hideAddUserModal()"></div>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Aggiungi utente</h3>
+                <p class="text-sm text-gray-500 mb-4">Inserisci l'email e il ruolo. L'utente potrà accedere al primo login con Google (stesso dominio consentito).</p>
+                <form onsubmit="submitAddUser(event)">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="add-user-email" required
+                               class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                               placeholder="nome@dominio.com">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Ruolo</label>
+                        <select id="add-user-role-id" required
+                                class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            <option value="">Seleziona ruolo...</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="hideAddUserModal()"
+                                class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Annulla
+                        </button>
+                        <button type="submit"
+                                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                            Aggiungi
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -124,10 +168,10 @@
         }
 
         tbody.innerHTML = usersList.map(u => {
-            const lastLogin = u.last_login ? new Date(u.last_login).toLocaleString('it-IT') : 'Mai';
+            const lastLogin = u.last_login ? new Date(u.last_login).toLocaleString('it-IT') : (u.is_pending ? 'In attesa di accesso' : 'Mai');
             const statusColor = u.is_active ? 'green' : 'red';
             const statusText = u.is_active ? 'Attivo' : 'Disabilitato';
-            
+            const displayName = u.name || (u.is_pending ? '—' : 'N/A');
             return `
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -137,7 +181,7 @@
                                 <i class="fas fa-user text-gray-600"></i>
                             </div>`}
                             <div>
-                                <div class="text-sm font-medium text-gray-900">${u.name || 'N/A'}</div>
+                                <div class="text-sm font-medium text-gray-900">${displayName} ${u.is_pending ? '<span class="ml-1 text-xs text-amber-600">(invitato)</span>' : ''}</div>
                                 <div class="text-sm text-gray-500">${u.email}</div>
                             </div>
                         </div>
@@ -184,6 +228,42 @@
         document.getElementById('role-modal').classList.add('hidden');
         document.getElementById('modal-user-id').value = '';
         document.getElementById('modal-role-id').value = '';
+    }
+
+    function showAddUserModal() {
+        const roleSelect = document.getElementById('add-user-role-id');
+        roleSelect.innerHTML = '<option value="">Seleziona ruolo...</option>' +
+            roles.map(r => `<option value="${r.id}">${r.name} - ${r.description}</option>`).join('');
+        document.getElementById('add-user-email').value = '';
+        document.getElementById('add-user-modal').classList.remove('hidden');
+    }
+
+    function hideAddUserModal() {
+        document.getElementById('add-user-modal').classList.add('hidden');
+    }
+
+    async function submitAddUser(event) {
+        event.preventDefault();
+        const email = document.getElementById('add-user-email').value.trim();
+        const roleId = parseInt(document.getElementById('add-user-role-id').value);
+        if (!email || !roleId) return;
+        try {
+            const response = await fetch('/api/users', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email, role_id: roleId })
+            });
+            const data = await response.json();
+            if (data.success) {
+                showAlert(data.message, 'Successo', 'check-circle', 'green');
+                hideAddUserModal();
+                loadUsers();
+            } else {
+                showAlert(data.error || 'Errore sconosciuto', 'Errore', 'exclamation-circle', 'red');
+            }
+        } catch (error) {
+            showAlert('Errore: ' + error.message, 'Errore', 'exclamation-circle', 'red');
+        }
     }
 
     async function updateUserRole(event) {

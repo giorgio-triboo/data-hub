@@ -128,6 +128,41 @@ class AuthService:
     def get_all_roles():
         """Ottiene tutti i ruoli"""
         return Role.query.all()
+
+    # Prefisso per google_id degli utenti invitati (non ancora loggati con Google)
+    PENDING_GOOGLE_ID_PREFIX = 'pending:'
+
+    @staticmethod
+    def create_invited_user(email: str, role_id: int) -> Optional[User]:
+        """
+        Crea un utente "invitato": viene creato in DB con google_id placeholder.
+        Al primo login con Google (stessa email), get_or_create_user aggiorna il google_id reale.
+        """
+        email = (email or '').strip().lower()
+        if not email or '@' not in email:
+            return None
+        if User.query.filter_by(email=email).first():
+            return None  # email già presente
+        role = Role.query.get(role_id)
+        if not role:
+            return None
+        try:
+            user = User(
+                google_id=f'{AuthService.PENDING_GOOGLE_ID_PREFIX}{email}',
+                email=email,
+                name=None,
+                picture=None,
+                role_id=role_id,
+                is_active=True,
+            )
+            db.session.add(user)
+            db.session.commit()
+            logger.info(f"Created invited user: {email} (role_id={role_id})")
+            return user
+        except Exception as e:
+            logger.error(f"Error creating invited user: {e}", exc_info=True)
+            db.session.rollback()
+            return None
     
     @staticmethod
     def initialize_default_roles():

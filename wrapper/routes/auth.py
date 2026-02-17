@@ -11,6 +11,8 @@ from flask_dance.contrib.google import make_google_blueprint, google
 from config import Config
 from services.auth_service import AuthService
 from db import db
+from models.user import User
+from models.role import Role
 
 logger = logging.getLogger(__name__)
 
@@ -43,11 +45,28 @@ def register_google_oauth(app):
 
 @auth_bp.route('/login')
 def login():
-    """Pagina di login con Google"""
-    if not Config.GOOGLE_OAUTH_CLIENT_ID or not Config.GOOGLE_OAUTH_CLIENT_SECRET:
-        return render_template('login.html', user=None, error='Google OAuth non configurato. Contatta l\'amministratore.')
-    
-    return render_template('login.html', user=current_user if current_user.is_authenticated else None)
+    """Pagina di login (accesso diretto per rete interna/VPN)"""
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard.index'))
+    return render_template('login.html', user=None)
+
+
+@auth_bp.route('/direct')
+def direct_login():
+    """Accesso diretto senza Google: logga il primo admin. Per uso interno (VPN)."""
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard.index'))
+    admin_role = Role.query.filter_by(name='admin').first()
+    if not admin_role:
+        return render_template('login.html', user=None, error='Nessun ruolo admin configurato.')
+    user = User.query.filter_by(role_id=admin_role.id, is_active=True).first()
+    if not user:
+        return render_template('login.html', user=None, error='Nessun utente admin trovato.')
+    user.last_login = datetime.utcnow()
+    db.session.commit()
+    login_user(user, remember=True)
+    AuthService.log_action(user.id, user.email, 'login', resource_type='auth', details={'method': 'direct_internal'})
+    return redirect(url_for('dashboard.index'))
 
 
 # Usiamo il signal di Flask-Dance per intercettare il callback e gestire il login
@@ -87,7 +106,6 @@ def setup_google_oauth_callback(google_bp):
                 return False
             
             # Cerca PRIMA per email nel database (priorità assoluta)
-            from models.user import User
             user = User.query.filter_by(email=email).first()
             
             if user:

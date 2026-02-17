@@ -19,8 +19,10 @@ class Config:
     SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'false').lower() == 'true'
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
-    # Configurazione URL base per OAuth (importante per redirect URI)
-    SERVER_NAME = os.getenv('SERVER_NAME', 'localhost:18080')  # Usato da Flask-Dance per costruire redirect URI
+    # Non impostare SERVER_NAME: con SERVER_NAME Flask restituisce 404 se Host != SERVER_NAME,
+    # quindi da LAN (es. trb-contarini.local:18080) non funzionerebbe. Flask-Dance costruisce
+    # il redirect URI dall'Host della richiesta; aggiungi in Google Console entrambi gli URI se
+    # usi sia localhost sia hostname (es. http://trb-contarini.local:18080/auth/google/callback).
     
     # Database PostgreSQL (per utenti, ruoli, audit)
     POSTGRES_HOST = os.getenv('POSTGRES_HOST', 'postgres')

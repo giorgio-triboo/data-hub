@@ -47,12 +47,55 @@ def get_users():
                     'description': u.role.description
                 },
                 'is_active': u.is_active,
+                'is_pending': (u.google_id or '').startswith(AuthService.PENDING_GOOGLE_ID_PREFIX),
                 'created_at': u.created_at.isoformat() if u.created_at else None,
                 'last_login': u.last_login.isoformat() if u.last_login else None
             } for u in users]
         })
     except Exception as e:
         logger.error(f"Error getting users: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@users_bp.route('/api/users', methods=['POST'])
+@login_required
+def create_user():
+    """API per aggiungere un utente (invito): email + ruolo. Al primo login Google verrà collegato."""
+    if not current_user.has_permission('manage_users'):
+        return jsonify({'error': 'Permesso negato'}), 403
+    try:
+        data = request.get_json()
+        email = (data.get('email') or '').strip()
+        role_id = data.get('role_id')
+        if not email or '@' not in email:
+            return jsonify({'success': False, 'error': 'Email non valida'}), 400
+        if not role_id:
+            return jsonify({'success': False, 'error': 'Ruolo richiesto'}), 400
+        user = AuthService.create_invited_user(email, int(role_id))
+        if not user:
+            if User.query.filter_by(email=email.lower()).first():
+                return jsonify({'success': False, 'error': 'Un utente con questa email esiste già'}), 400
+            return jsonify({'success': False, 'error': 'Impossibile creare l\'utente (ruolo non valido?)'}), 400
+        AuthService.log_action(
+            current_user.id,
+            current_user.email,
+            'create_invited_user',
+            resource_type='user',
+            resource_id=str(user.id),
+            details={'email': user.email, 'role_id': user.role_id},
+        )
+        return jsonify({
+            'success': True,
+            'message': f'Utente {user.email} aggiunto. Potrà accedere al primo login con Google.',
+            'user': {
+                'id': user.id,
+                'email': user.email,
+                'role': {'id': user.role.id, 'name': user.role.name},
+                'is_active': user.is_active,
+            },
+        })
+    except Exception as e:
+        logger.error(f"Error creating user: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 

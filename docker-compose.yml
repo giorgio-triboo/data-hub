@@ -158,7 +158,7 @@ services:
     #   clickhouse:
     #     condition: service_healthy
     ports:
-      - "18080:8080"  # Dashboard web (porta alternativa per evitare conflitti)
+      - "0.0.0.0:18080:8080"  # Dashboard web; 0.0.0.0 = raggiungibile da LAN (es. http://trb-contarini.local:18080)
     volumes:
       - ./volumes/logs:/app/logs
       - ./volumes/backups:/app/backups
@@ -201,7 +201,7 @@ services:
       GOOGLE_OAUTH_CLIENT_SECRET: ${GOOGLE_OAUTH_CLIENT_SECRET:-}
       GOOGLE_OAUTH_REDIRECT_URI: ${GOOGLE_OAUTH_REDIRECT_URI:-http://localhost:18080/auth/google/callback}
       ALLOWED_GOOGLE_DOMAINS: ${ALLOWED_GOOGLE_DOMAINS:-}
-      SERVER_NAME: ${SERVER_NAME:-localhost:18080}
+      # SERVER_NAME rimosso: con esso Flask 404 su host diversi (es. trb-contarini.local). OAuth usa l'Host della richiesta.
       # Permetti HTTP per OAuth in sviluppo locale
       OAUTHLIB_INSECURE_TRANSPORT: "1"
     networks:
